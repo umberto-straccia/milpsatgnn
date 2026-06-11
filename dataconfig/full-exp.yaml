@@ -1,0 +1,98 @@
+# EASY 2K
+exp_id : easy-2k-rf-0.5-bce
+exp_descr: "Easy 2k, random features dim=1,p=0.5, bce loss"
+# external_data: g4satbench  # specify source of external data. only g4satbench is supported
+
+device : "cuda:0" # or "cpu"
+cp_config: True
+
+# remote logging, these two keys must be always set
+neptune_project: "---"
+remote_log_mode: "debug"
+
+dev_mode: False
+remote_log: False
+
+#   P I P E L I N E   S T E P S
+do_gen_data : True
+do_encode_data: True
+do_split_data: True
+do_train : True 
+do_test : True 
+test_with_best : True 
+
+#   P A T H S
+force_overwrite: False
+dataset_dir : ../dataset_50k/dataset
+output_dir : ../out/easy-2k
+train_data_path : "train"   # If do_gen_data is False, it will load the data from this folder for training
+valid_data_path : "valid"
+test_data_path : "test"   # If do_gen_data is False, it will load the data from this folder for testing 
+best_model_path : "models/best_model.pt"
+final_model_path : "models/final_model.pt"
+# dataset :  "pyg_dataset_0.5_rf.pt"  # specify dataset when using g4satbench data
+
+#   S E E D S
+gen_seed : 1
+data_seed: 2
+split_seed: 3
+torch_seed : 4
+np_seed : 5
+rand_seed : 6 
+random_features_seed: 7
+
+#   A R T I F I C I A L   D A T A   C O N F I G
+generation_version : 3
+generate_size: 50_000
+data_gen_n_procs: 1
+data_solve_n_procs: 1
+fail_with_duplicates: True
+
+# if add_randm_features is False, no additional features are added to vars and constraints
+# if add_random_features is True, n_random_featuers columns are added both to vars and constraints
+#    these n_random_features columns are initialized randomly with probability random_features_p
+#    and are left to zero with probability 1 - p
+# If random_features_p is not specified, it is set to 1.0.
+add_random_features: True  # if True, define also "n_random_features" and "random_feature_seed"
+n_random_features: 1
+random_features_p: 0.5
+
+min_vars : 10
+max_vars : 40
+# params speicific to generation version 3
+nc_left : 0.01
+nc_right : 0.01
+
+#   C N F   c o n f i g
+k_cnf : 3
+
+
+#   S E L E C T I O N    A N D    S P L I T T I N G
+dataset_size : 2_000 # 10_000
+selection_method: label_hard_strat # none, random, label_strat, label_hard_strat 
+splitting_method: stratify # basic, stratify
+stratify_cols: label, hard
+hard_ratio : 1.0  # 0.9  # if -1 -> ignore hard/easy examples
+pos_ratio : 0.5
+val_size: 0.1
+test_size : 0.1
+
+#   H Y P E R P A R A M S    C O N F I G
+epochs : 100
+lr : 1e-3 # original 0.001
+# weight_decay: 1e-4
+batch_size : 64
+test_batch_size : 64
+best_with_loss : False
+loss_function: bce # mse or bce
+gcnpolicy_aggregation: mean # mean, sum, max
+bip_layer_anticipate_mp: True
+bip_conv_order: "cons-vars" # "cons-var", "var-cons"
+bip_conv_append_activation: False
+use_lr_scheduler: False
+gcn_final_graph_op: mean # mean, sum
+
+
+# M O D E L   C O N F I G
+embedding_size : 32
+gcnpolicy_n_layers: 2

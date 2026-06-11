@@ -1,0 +1,1 @@
+scripts myst be run in the parent folder (in ./src, run "sh scripts/script_filename")
